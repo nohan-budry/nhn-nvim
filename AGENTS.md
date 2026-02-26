@@ -62,3 +62,27 @@ Fuzzy finder over files, buffers, grep results, help tags, and more.
 **Notes:**
 - Uses a `config` function (not `opts`) because keymaps and `load_extension` must be called after setup.
 - Run `:checkhealth telescope` to verify the install.
+
+---
+
+### nvim-treesitter (main branch)
+
+**File:** `lua/plugins/treesitter.lua`
+**Repo:** [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/main)
+
+Syntax highlighting and folding via tree-sitter parsers.
+
+> ⚠️ Uses the `main` branch — a full incompatible rewrite. Do **not** use the old `ensure_installed` / `highlight.enable` API.
+
+**Requirements:** `tar`, `curl`, `tree-sitter-cli` (≥0.26.1), and a C compiler in `$PATH`.
+
+**Installed parsers:** `c`, `cpp`, `rust`, `java`, `html`, `css`, `javascript`, `typescript`, `tsx`, `json`, `jsdoc`, `lua`, `vim`, `vimdoc`, `query`, `bash`, `regex`, `markdown`, `markdown_inline`, `comment`
+
+**Features enabled:**
+- **Highlighting** — via `vim.treesitter.start()` in a `FileType` autocmd
+- **Folding** — `foldmethod=expr` + `vim.treesitter.foldexpr()`; folds start open (`foldenable=false`)
+
+**Notes:**
+- `lazy = false` is required — the plugin does not support lazy-loading.
+- Run `:TSUpdate` after upgrading the plugin to keep parsers in sync.
+- Run `:checkhealth nvim-treesitter` to verify the install.
