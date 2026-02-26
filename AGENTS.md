@@ -5,7 +5,10 @@
 This is a Neovim configuration using [lazy.nvim](https://lazy.folke.io/) as the plugin manager.
 
 - `init.lua` — Entry point; loads `lua/config/`
-- `lua/config/init.lua` — Bootstraps the config modules (options, keymaps, autocmds, lazy)
+- `lua/config/init.lua` — Bootstraps the config modules in order: keymaps → set → lazy → colorscheme
+- `lua/config/set.lua` — Editor options (line numbers, tabs, search, undo, etc.)
+- `lua/config/keymaps.lua` — Global keymaps and leader key definition
+- `lua/config/colorscheme.lua` — Colorscheme and highlight overrides
 - `lua/config/lazy.lua` — Bootstraps and configures lazy.nvim; imports all plugin specs from `lua/plugins/`
 - `lua/plugins/` — Each file returns a table (or list of tables) of [lazy.nvim plugin specs](https://lazy.folke.io/spec)
 
@@ -15,6 +18,7 @@ This is a Neovim configuration using [lazy.nvim](https://lazy.folke.io/) as the 
 - Plugin specs use lazy.nvim's declarative format: `opts` for config tables, `config` only when a function is needed.
 - Leader key is `<Space>`, local leader is `\`.
 - All configuration is in Lua — no VimScript.
+- No F-key mappings (Mac-unfriendly). Use `g`-prefix for navigation, `<leader>` for actions.
 
 ## Adding a Plugin
 
@@ -86,3 +90,72 @@ Syntax highlighting and folding via tree-sitter parsers.
 - `lazy = false` is required — the plugin does not support lazy-loading.
 - Run `:TSUpdate` after upgrading the plugin to keep parsers in sync.
 - Run `:checkhealth nvim-treesitter` to verify the install.
+
+---
+
+### Colorscheme
+
+**File:** `lua/config/colorscheme.lua`
+
+Uses the built-in `default` light theme with custom highlight overrides applied via a `ColorScheme` autocmd (so they survive any colorscheme reload).
+
+| Highlight group | Value |
+|---|---|
+| `Normal` / `NormalNC` bg | `#ffffff` (full white) |
+| `StatusLine` bg / fg | `#e0e0e0` / `#333333` (light gray bar) |
+| `StatusLineNC` bg / fg | `#e8e8e8` / `#888888` (inactive windows) |
+
+---
+
+### Global keymaps
+
+**File:** `lua/config/keymaps.lua`
+
+| Key | Action |
+|---|---|
+| `<Space>pv` | Open netrw file explorer |
+
+---
+
+### LSP
+
+**File:** `lua/plugins/lsp.lua`
+**Requires Neovim:** ≥ 0.11 (uses `vim.lsp.config` / `vim.lsp.enable` native API)
+
+**Plugins:**
+- `mason-org/mason.nvim` — installs language server binaries locally
+- `mason-org/mason-lspconfig.nvim` — ensures servers listed in `ensure_installed` are installed and auto-calls `vim.lsp.enable()` for each
+- `neovim/nvim-lspconfig` — provides server config recipes consumed by `vim.lsp.enable()`
+
+**Installed servers:**
+
+| Server | Language(s) |
+|---|---|
+| `lua_ls` | Lua (Neovim-aware: JuaJIT runtime + `$VIMRUNTIME` workspace) |
+| `ts_ls` | JavaScript / TypeScript / TSX |
+| `clangd` | C / C++ |
+| `rust_analyzer` | Rust |
+| `html` | HTML |
+| `cssls` | CSS |
+| `jsonls` | JSON |
+| `bashls` | Bash |
+
+> Java (`jdtls`) requires extra per-project setup — add manually if needed.
+
+**Completion:** native built-in (`vim.lsp.completion`), triggered manually with `<C-Space>` or `<C-x><C-o>`. No completion plugin.
+
+**Keymaps** (buffer-local, only set when an LSP attaches):
+
+| Key | Action |
+|---|---|
+| `K` | Hover docs |
+| `gd` / `gD` | Definition / Declaration |
+| `gi` / `go` / `gr` | Implementation / Type definition / References |
+| `gs` | Signature help |
+| `<Space>lr` | Rename |
+| `<Space>la` | Code action |
+| `<Space>lf` | Format (normal + visual) |
+
+**Notes:**
+- Keymaps are only registered when an LSP client attaches — files with no server configured are unaffected.
+- Run `:checkhealth vim.lsp` to verify servers are attached.
