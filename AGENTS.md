@@ -1,4 +1,4 @@
-# Copilot Instructions — Neovim Configuration
+# Agent Instructions — Neovim Configuration
 
 ## Architecture
 
@@ -31,3 +31,34 @@ return {
 ## Validation
 
 Open Neovim and run `:checkhealth lazy` to verify the config loads without errors.
+
+---
+
+## Plugins
+
+### telescope.nvim
+
+**File:** `lua/plugins/telescope.lua`
+**Repo:** [nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+
+Fuzzy finder over files, buffers, grep results, help tags, and more.
+
+**Dependencies:**
+- `nvim-lua/plenary.nvim` — required
+- `nvim-telescope/telescope-fzf-native.nvim` — native FZF sorter (built with `make`); requires `make` and a C compiler
+- `ripgrep` (system) — required for `live_grep` and `grep_string`
+
+**Keymaps:**
+
+| Key | Action |
+|---|---|
+| `<Space>ff` | Find files |
+| `<Space>fg` | Live grep |
+| `<Space>fb` | Buffers |
+| `<Space>fh` | Help tags |
+| `<Space>fr` | Recent files |
+| `<Space>fs` | Grep string under cursor |
+
+**Notes:**
+- Uses a `config` function (not `opts`) because keymaps and `load_extension` must be called after setup.
+- Run `:checkhealth telescope` to verify the install.
