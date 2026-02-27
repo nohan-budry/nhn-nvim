@@ -28,7 +28,7 @@ This configuration targets **macOS, Linux, and Windows** (Neovim ≥ 0.11 on all
 
 | Area | Issue | Recommendation |
 |---|---|---|
-| `telescope-fzf-native` | Requires `make` + a C compiler (MSVC or MinGW). `make` is not available by default. | Install via [MSYS2](https://www.msys2.org/) or use the pre-built `cmake` build option in the spec. |
+| `telescope-fzf-native` | Requires `make` + a C compiler (MSVC or MinGW). `make` is not available by default. | The spec auto-detects the platform: uses `cmake` on Windows, `make` on Unix. Requires cmake and a C compiler (MSVC Build Tools or LLVM). |
 | `ripgrep` | Not installed by default. | Install with `winget install BurntSushi.ripgrep.MSVC` or via Scoop/Chocolatey. |
 | `nvim-treesitter` | Requires a C compiler in `PATH`. | Install MSVC Build Tools or LLVM (clang). |
 | `bashls` | Bash is uncommon on Windows; the server may fail to install or attach. | **Not supported on Windows.** Remove `bashls` from `ensure_installed` when running on Windows, or guard it with `if vim.fn.has("win32") == 0 then`. |
