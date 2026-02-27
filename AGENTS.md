@@ -12,6 +12,28 @@ This is a Neovim configuration using [lazy.nvim](https://lazy.folke.io/) as the 
 - `lua/config/lazy.lua` — Bootstraps and configures lazy.nvim; imports all plugin specs from `lua/plugins/`
 - `lua/plugins/` — Each file returns a table (or list of tables) of [lazy.nvim plugin specs](https://lazy.folke.io/spec)
 
+## Platform Support
+
+This configuration targets **macOS, Linux, and Windows** (Neovim ≥ 0.11 on all platforms).
+
+### Cross-platform rules
+
+- **Never use `os.getenv("HOME")`** — it is `nil` on Windows. Use `vim.fn.stdpath()` instead:
+  - `vim.fn.stdpath("data")` → `~/.local/share/nvim` (Unix) / `%LOCALAPPDATA%\nvim-data` (Windows)
+  - `vim.fn.stdpath("config")` → `~/.config/nvim` (Unix) / `%LOCALAPPDATA%\nvim` (Windows)
+- **Never hardcode `/` path separators** in Lua path construction. Use `vim.fs.joinpath()` or rely on `stdpath` which already returns the correct separator.
+- **Avoid shell-specific syntax** in `vim.fn.system()` calls (e.g., `&&`, `||`, `~`). Use `vim.fn.has("win32")` to branch when a platform difference is unavoidable.
+
+### Windows-specific caveats
+
+| Area | Issue | Recommendation |
+|---|---|---|
+| `telescope-fzf-native` | Requires `make` + a C compiler (MSVC or MinGW). `make` is not available by default. | Install via [MSYS2](https://www.msys2.org/) or use the pre-built `cmake` build option in the spec. |
+| `ripgrep` | Not installed by default. | Install with `winget install BurntSushi.ripgrep.MSVC` or via Scoop/Chocolatey. |
+| `nvim-treesitter` | Requires a C compiler in `PATH`. | Install MSVC Build Tools or LLVM (clang). |
+| `bashls` | Bash is uncommon on Windows; the server may fail to install or attach. | **Not supported on Windows.** Remove `bashls` from `ensure_installed` when running on Windows, or guard it with `if vim.fn.has("win32") == 0 then`. |
+| `tree-sitter-cli` | Must be ≥ 0.26.1 and in `PATH`. | Install via `npm install -g tree-sitter-cli` or a pre-built release. |
+
 ## Conventions
 
 - **One plugin spec per file** in `lua/plugins/`. Name the file after the plugin (e.g., `telescope.lua`, `treesitter.lua`).
@@ -138,7 +160,7 @@ Uses the built-in `default` light theme with custom highlight overrides applied 
 | `html` | HTML |
 | `cssls` | CSS |
 | `jsonls` | JSON |
-| `bashls` | Bash |
+| `bashls` | Bash (**Unix only** — not supported on Windows) |
 
 > Java (`jdtls`) requires extra per-project setup — add manually if needed.
 
