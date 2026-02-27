@@ -6,7 +6,7 @@ return {
     {
       "nvim-telescope/telescope-fzf-native.nvim",
       build = vim.fn.has("win32") == 1
-        and "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build"
+        and "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release --target install"
         or "make",
     },
   },
