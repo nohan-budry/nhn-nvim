@@ -74,6 +74,69 @@ return {
           vim.keymap.set("n", "go", function() require("telescope.builtin").lsp_type_definitions({ initial_mode = "normal" }) end, opts)
           vim.keymap.set("n", "gr", function() require("telescope.builtin").lsp_references({ initial_mode = "normal" }) end, opts)
           vim.keymap.set("n", "gs", vim.lsp.buf.signature_help,  opts)
+          -- BFS type hierarchy in Telescope (<leader>lh)
+          vim.keymap.set("n", "<leader>lh", function()
+            local client = vim.lsp.get_clients({ bufnr = 0 })[1]
+            if not client then return end
+            local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+            client.request("textDocument/prepareTypeHierarchy", params, function(err, result)
+              if err or not result or #result == 0 then
+                vim.notify("No type hierarchy found", vim.log.levels.INFO)
+                return
+              end
+              local locations = {}
+              local queue = { { item = result[1], depth = 1 } }
+              local function process()
+                if #queue == 0 then
+                  if #locations == 0 then
+                    vim.notify("No subtypes found", vim.log.levels.INFO)
+                    return
+                  end
+                  local pickers = require("telescope.pickers")
+                  local finders = require("telescope.finders")
+                  local conf = require("telescope.config").values
+                  local make_entry = require("telescope.make_entry")
+                  local gen = make_entry.gen_from_quickfix()
+                  local function entry_maker(loc)
+                    local entry = gen({ filename = loc.filename, lnum = loc.lnum, col = loc.col, text = loc.name })
+                    local orig = entry.display
+                    entry.display = function(e)
+                      local str, hl = orig(e)
+                      return loc.indent .. (str or ""), hl
+                    end
+                    return entry
+                  end
+                  pickers.new({ initial_mode = "normal" }, {
+                    prompt_title = "Type Hierarchy (subtypes)",
+                    finder = finders.new_table({ results = locations, entry_maker = entry_maker }),
+                    sorter = conf.generic_sorter({}),
+                    previewer = conf.qflist_previewer({}),
+                  }):find()
+                  return
+                end
+                local entry = table.remove(queue, 1)
+                local item, depth = entry.item, entry.depth
+                local indent = string.rep("  ", depth - 1)
+                client.request("typeHierarchy/subtypes", { item = item }, function(err2, children)
+                  if not err2 and children then
+                    for _, child in ipairs(children) do
+                      table.insert(locations, {
+                        filename = vim.uri_to_fname(child.uri),
+                        lnum = child.range.start.line + 1,
+                        col = child.range.start.character + 1,
+                        name = child.name,
+                        indent = indent,
+                      })
+                      table.insert(queue, { item = child, depth = depth + 1 })
+                    end
+                  end
+                  process()
+                end)
+              end
+              process()
+            end)
+          end, opts)
+
           -- Actions (<leader>l prefix: mnemonic for "Language")
           vim.keymap.set("n",           "<leader>lr", vim.lsp.buf.rename,       opts)
           vim.keymap.set("n",           "<leader>la", vim.lsp.buf.code_action,  opts)
