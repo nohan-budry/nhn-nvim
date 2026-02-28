@@ -172,7 +172,9 @@ Uses the built-in `default` light theme with custom highlight overrides applied 
 |---|---|
 | `K` | Hover docs |
 | `gd` / `gD` | Definition / Declaration |
-| `gi` / `go` / `gr` | Implementation / Type definition / References |
+| `gi` | Implementation (Telescope) |
+| `go` | Type definition (Telescope) |
+| `gr` | References (Telescope) |
 | `gs` | Signature help |
 | `<Space>lr` | Rename |
 | `<Space>la` | Code action |
