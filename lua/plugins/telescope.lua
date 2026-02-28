@@ -12,7 +12,10 @@ return {
   },
   config = function()
     require("telescope").setup({
-      defaults = {},
+      defaults = {
+        sorting_strategy = "ascending",
+        layout_config = { prompt_position = "top" },
+      },
       pickers = {},
       extensions = {
         fzf = {},
