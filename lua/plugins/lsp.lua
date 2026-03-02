@@ -1,5 +1,7 @@
 -- mason-lspconfig v2 automatically calls vim.lsp.enable() for all
 -- installed servers (automatic_enable = true is the default).
+-- jdtls is excluded because it's managed by nvim-jdtls (lua/plugins/jdtls.lua)
+-- which handles startup with the correct root_dir and workspace config.
 return {
   {
     "mason-org/mason-lspconfig.nvim",
@@ -13,7 +15,10 @@ return {
         "cssls",         -- CSS
         "jsonls",        -- JSON
         "bashls",        -- Bash
-        -- Note: Java (jdtls) requires extra per-project setup; add manually if needed.
+        "jdtls",         -- Java (started by nvim-jdtls, not auto-enabled)
+      },
+      automatic_enable = {
+        exclude = { "jdtls" },
       },
     },
     dependencies = {

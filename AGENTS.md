@@ -160,9 +160,9 @@ Uses the built-in `default` light theme with custom highlight overrides applied 
 | `html` | HTML |
 | `cssls` | CSS |
 | `jsonls` | JSON |
-| `bashls` | Bash (**Unix only** — not supported on Windows) |
+| `jdtls` | Java (installed by Mason; started by `nvim-jdtls` — **not** auto-enabled) |
 
-> Java (`jdtls`) requires extra per-project setup — add manually if needed.
+> Java (`jdtls`) is configured separately via `lua/plugins/jdtls.lua` using `mfussenegger/nvim-jdtls`. See that section below.
 
 **Completion:** native built-in (`vim.lsp.completion`), triggered manually with `<C-Space>` or `<C-x><C-o>`. No completion plugin.
 
@@ -183,3 +183,23 @@ Uses the built-in `default` light theme with custom highlight overrides applied 
 **Notes:**
 - Keymaps are only registered when an LSP client attaches — files with no server configured are unaffected.
 - Run `:checkhealth vim.lsp` to verify servers are attached.
+
+---
+
+### Java LSP (jdtls)
+
+**File:** `lua/plugins/jdtls.lua`
+**Plugin:** `mfussenegger/nvim-jdtls`
+
+Extends the built-in LSP with Java-specific features (organize imports, extract variable/method/constant, type hierarchy, etc.). Loaded lazily on `FileType java`.
+
+**Root detection:** uses `vim.fs.root(0, { "gradlew", ".git", "mvnw" })`. These markers are project-root artifacts (never in submodules), so jdtls is always rooted at the multi-module project level. Once rooted there, jdtls reads the parent `pom.xml`, imports all `<modules>` as workspace projects, and resolves cross-module references without a prior `mvn install`.
+
+> **Requirement:** the project root must contain `.git`, `mvnw`, or `gradlew`. For Maven projects without a wrapper, run `git init` at the project root.
+
+**data directory:** stored under `stdpath("data")/jdtls-workspace/<project-name>`, derived from `cwd` at startup. Each project root gets its own index so data persists across reboots.
+
+**Notes:**
+- Mason installs `jdtls` automatically (it's in `ensure_installed`); `mason-lspconfig` auto-enable is excluded for it so nvim-jdtls handles startup instead.
+- `jdtls` binary is available in `$PATH` via Mason's bin directory.
+- Run `:checkhealth vim.lsp` and look for `jdtls` to verify attachment.

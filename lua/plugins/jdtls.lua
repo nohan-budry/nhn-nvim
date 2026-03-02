@@ -11,7 +11,7 @@ return {
       callback = function()
         jdtls.start_or_attach({
           cmd = { "jdtls", "-data", data_dir },
-          root_dir = vim.fs.root(0, { "pom.xml", "parent-pom.xml", ".git" }),
+          root_dir = vim.fs.root(0, { "gradlew", ".git", "mvnw" }),
         })
       end,
     })
