@@ -30,6 +30,14 @@ return {
     "neovim/nvim-lspconfig",
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function()
+      -- clangd: group all root_markers as equal priority (nested list) so vim.fs.root()
+      -- finds the NEAREST ancestor containing any marker, instead of checking each
+      -- marker sequentially across all ancestors (which causes ~/.clang-format to win
+      -- over compile_commands.json in the project).
+      vim.lsp.config("clangd", {
+        root_markers = { { ".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", "configure.ac", ".git" } },
+      })
+
       -- Teach lua_ls about Neovim's runtime so the "vim" global is recognized.
       vim.lsp.config("lua_ls", {
         settings = {
